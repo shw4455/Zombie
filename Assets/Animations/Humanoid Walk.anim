@@ -4,7 +4,8 @@
 AnimationClip:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Humanoid Walk
   serializedVersion: 6
   m_Legacy: 0
@@ -1837,11 +1838,11 @@ AnimationClip:
       - serializedVersion: 3
         time: 0.293334
         value: -0.9985242
-        inSlope: 0.002317431
-        outSlope: 0.002317431
+        inSlope: -0.39418915
+        outSlope: -0.39418915
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 1
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.3266673
@@ -40347,11 +40348,11 @@ AnimationClip:
       - serializedVersion: 3
         time: 0.293334
         value: -0.9985242
-        inSlope: 0.002317431
-        outSlope: 0.002317431
+        inSlope: -0.39418915
+        outSlope: -0.39418915
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 1
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.3266673
@@ -76099,5 +76100,4 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
-  m_GenerateMotionCurves: 0
   m_Events: []
