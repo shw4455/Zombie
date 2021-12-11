@@ -38,20 +38,101 @@ public class Gun : MonoBehaviour {
 
     private void Awake() {
         // 사용할 컴포넌트들의 참조를 가져오기
+        gunAudioPlayer = GetComponent<AudioSource>();
+        bulletLineRenderer = GetComponent<LineRenderer>();
+
+        // 사용할 점을 두 개로 변경
+        bulletLineRenderer.positionCount = 2;
+        // 라인 랜더러 비활성화
+        bulletLineRenderer.enabled = false; // 코드에서도 확실하게 비활성화
     }
 
     private void OnEnable() {
         // 총 상태 초기화
+        // 현재 탄창을 가득 채우기
+        magAmmo = magCapacity; // 대다수의 게임에서 무기 교체하면 탄창이 차는 이유?
+        // 총의 현재 상태를 총을 쏠 준비가 된 상태로 변경
+        state = State.Ready;
+        // 마지막으로 총을 쏜 시점 초기화
+        lastFireTime = 0;
     }
 
     // 발사 시도
     public void Fire() {
-
+        // 현재 상태가 발사 가능한 상태
+        // && 마지막 총 발사 지검에서 timeBetFire 이상의 시간이 지남
+        if (state == State.Ready && Time.time >= lastFireTime + timeBetFire)
+        {
+            // 마지막 총 발사 시점 갱신
+            lastFireTime = Time.time;
+            // 실제 발사 처리 실행
+            Shot();
+        }
     }
 
     // 실제 발사 처리
     private void Shot() {
-        
+        // 레이캐스트에 의한 충돌 정보를 저장하는 컨테이너
+        RaycastHit hit;
+
+        //탄일이 맞은 곳을 저장할 변수
+        Vector3 hitposition = Vector3.zero;
+
+        // 레이케스트(시작 지점, 방향, 충돌 정보 컨테이너, 사정거리)
+        if (Physics.Raycast(fireTransform.position, fireTransform.forward, out hit, fireDistance)) // ? forward는 항상 앞쪽인가, out hit?
+        {
+            // 레이가 어떤 물체와 충돌한 경우
+            // 충돌한 상대방으로부터 IDamageable 오브젝트 가져오기 시도
+            IDamageable target = hit.collider.GetComponent<IDamageable>(); // collider를 왜 나타내는거지? 그냥 바로 getcomponent 하면 안되나?
+
+            // 상대방으로 부터 IDamageable 오브젝트를 가져오는 데 성공했다면
+            if (target != null)
+            {
+                // 상대방의 Ondamage 함수를 실행시켜 상대방에 대미지 주기
+                target.OnDamage(damage, hit.point, hit.normal);
+            }
+            // 레이가 충돌한 위치 저장
+            hitposition = hit.point;
+        }
+        else
+        {
+            // 레이가 다른 물체와 충돌하지 않았다면
+            // 탄알이 최대 사정거리까지 날아갈을 때의 위치를 충돌 위치로 사용
+            hitposition = fireTransform.position + fireTransform.forward * fireDistance;
+        }
+
+        //발사 이펙트 재생 시작
+        StartCoroutine(ShotEffect(hitposition));
+
+        // 남은 탄알 수를 -1
+        magAmmo--;
+        if (magAmmo <= 0)
+        {
+            // 탄창에 남은 탄알이 없다면 총의 현재 상태를 empty로 갱신
+            state = State.Empty;
+        }
+
+        // 총구 화염 효과 재생
+        muzzleFlashEffect.Play();
+        // 탄피 배출 효과 재생
+        shellEjectEffect.Play();
+
+        // 총격 소리 재생
+        gunAudioPlayer.PlayOneShot(shotClip);
+
+        //선의 시작점은 총구의 위치
+        bulletLineRenderer.SetPosition(0, fireTransform.position);
+
+        //선의 끝점은 입력으로 들어온 충돌 위치
+        bulletLineRenderer.SetPosition(1, hitPosition); // ?
+        // 라인 랜더어를 활성화하여 탄알 궤적을 그림
+        bulletLineRenderer.enabled = true;
+
+        //0.03초 동안 잠시 처리를 대기
+        yield return new WaitForSeconds(0.03f); // ?
+
+        // 라인 랜더러를 비활성화하여 탄알 궤적을 지움
+        bulletLineRenderer.enabled = false;
     }
 
     // 발사 이펙트와 소리를 재생하고 총알 궤적을 그린다
