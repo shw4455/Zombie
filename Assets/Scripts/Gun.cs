@@ -84,14 +84,17 @@ public class Gun : MonoBehaviour
         Vector3 hitposition = Vector3.zero; // 변수 초기화
 
         // 레이케스트(시작 지점, 방향, 충돌 정보 컨테이너, 사정거리)
-        if (Physics.Raycast(fireTransform.position, fireTransform.forward, out hit, fireDistance)) // ? forward는 항상 앞쪽인가, out hit?
+        if (Physics.Raycast(fireTransform.position, fireTransform.forward, out hit, fireDistance))
+            // forward는 항상 앞쪽인가 : 오브젝트의 방향이기 때문에 항상 앞쪽
+            // out hit?, out 메서드에 대해 더 깊게 알아봐야할
+            // 지정된 매개변수 자리 어디에 들어가도 상관 없는 키워드인가?
         {
             // 레이가 어떤 물체와 충돌한 경우
             // 충돌한 상대방으로부터 IDamageable 오브젝트 가져오기 시도
             IDamageable target = hit.collider.GetComponent<IDamageable>(); // collider를 왜 나타내는거지? 그냥 바로 getcomponent 하면 안되나?
 
             // 상대방으로 부터 IDamageable 오브젝트를 가져오는 데 성공했다면
-            if (target != null)
+            if (target != null) // 상대방이 공격 받을 수 
             {
                 // 상대방의 Ondamage 함수를 실행시켜 상대방에 대미지 주기
                 target.OnDamage(damage, hit.point, hit.normal);
@@ -107,7 +110,7 @@ public class Gun : MonoBehaviour
         }
 
         //발사 이펙트 재생 시작
-        StartCoroutine(ShotEffect(hitposition));
+        StartCoroutine(ShotEffect(hitposition)); // ?
 
         // 남은 탄알 수를 -1
         magAmmo--;
@@ -116,6 +119,10 @@ public class Gun : MonoBehaviour
             // 탄창에 남은 탄알이 없다면 총의 현재 상태를 empty로 갱신
             state = State.Empty;
         }
+    }
+
+    // 발사 이펙트와 소리를 재생하고 총알 궤적을 그린다
+    private IEnumerator ShotEffect(Vector3 hitposition) {
 
         // 총구 화염 효과 재생
         muzzleFlashEffect.Play();
@@ -128,36 +135,24 @@ public class Gun : MonoBehaviour
         //선의 시작점은 총구의 위치
         bulletLineRenderer.SetPosition(0, fireTransform.position);
 
-        //선의 끝점은 입력으로 들어온 충돌 위치
-        bulletLineRenderer.SetPosition(1, hitPosition); // ?
+        // 선의 끝점은 입력으로 들어온 충돌 위치
+        bulletLineRenderer.SetPosition(1, hitposition); // ?
         // 라인 랜더어를 활성화하여 탄알 궤적을 그림
         bulletLineRenderer.enabled = true;
 
-        //0.03초 동안 잠시 처리를 대기
+        // 0.03초 동안 잠시 처리를 대기
         yield return new WaitForSeconds(0.03f); // ?
 
         // 라인 랜더러를 비활성화하여 탄알 궤적을 지움
         bulletLineRenderer.enabled = false;
     }
 
-    // 발사 이펙트와 소리를 재생하고 총알 궤적을 그린다
-    private IEnumerator ShotEffect(Vector3 hitPosition)
-    {
-        // 라인 렌더러를 활성화하여 총알 궤적을 그린다
-        bulletLineRenderer.enabled = true;
-
-        // 0.03초 동안 잠시 처리를 대기
-        yield return new WaitForSeconds(0.03f);
-
-        // 라인 렌더러를 비활성화하여 총알 궤적을 지운다
-        bulletLineRenderer.enabled = false;
-    }
 
     // 재장전 시도
     public bool Reload()
     {
         // 재장전에 성공하면 true, 실패하면 false
-        if (state === State.Reloading || ammoRemain <= 0 || magAmmo >= magCapacity)
+        if (state == State.Reloading || ammoRemain <= 0 || magAmmo >= magCapacity)
         {
             // 재장전하는 중이거나, 남은 탄알이 없거나
             // 탄창에 탄알이 이미 가득한 경우 장전할 수 없음
@@ -165,7 +160,7 @@ public class Gun : MonoBehaviour
         }
 
         // 재장전 처리 시작
-        StartCoroutine(ReloadRoutine)(); // ?
+        StartCoroutine(ReloadRoutine()); // ?
         return true;
     }
 
@@ -175,13 +170,13 @@ public class Gun : MonoBehaviour
         // 현재 상태를 재장전 중 상태로 전환
         state = State.Reloading;
         // 재장전 소리 재생
-        gunAudioPlayer.PlayOnShot(reloadClip);
+        gunAudioPlayer.PlayOneShot(reloadClip); // PlayOneShot 재생중인 소리가 있어도 중복 재생
 
         // 재장전 소요 시간 만큼 처리를 쉬기
         yield return new WaitForSeconds(reloadTime);
 
         // 탄창에 채울 탄알을 계산
-        int ammoToFill = magCapacity - magAmmo
+        int ammoToFill = magCapacity - magAmmo;
 
         // 탄창에 채워야 할 탄알이 남은 탄알보다 많다면
         // 채워야 할 탄알 수를 남은 탄알 수에 맞춰 줄임
