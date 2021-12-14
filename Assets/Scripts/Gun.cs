@@ -111,7 +111,6 @@ public class Gun : MonoBehaviour
 
         //발사 이펙트 재생 시작
         StartCoroutine(ShotEffect(hitposition)); // ?
-
         // 남은 탄알 수를 -1
         magAmmo--;
         if (magAmmo <= 0)
@@ -123,7 +122,6 @@ public class Gun : MonoBehaviour
 
     // 발사 이펙트와 소리를 재생하고 총알 궤적을 그린다
     private IEnumerator ShotEffect(Vector3 hitposition) {
-
         // 총구 화염 효과 재생
         muzzleFlashEffect.Play();
         // 탄피 배출 효과 재생
@@ -152,6 +150,7 @@ public class Gun : MonoBehaviour
     public bool Reload()
     {
         // 재장전에 성공하면 true, 실패하면 false
+        Debug.Log("reload");
         if (state == State.Reloading || ammoRemain <= 0 || magAmmo >= magCapacity)
         {
             // 재장전하는 중이거나, 남은 탄알이 없거나
