@@ -192,4 +192,15 @@ public class Gun : MonoBehaviour
         // 총의 현재 상태를 발사 준비된 상태로 변경
         state = State.Ready;
     }
+    public IEnumerator Seconds()
+    {
+        WaitForSeconds wait = new WaitForSeconds(1f);
+        while (true)
+        {
+            yield return wait; ;
+            Debug.Log("tick");
+        }
+    }
 }
+
+
