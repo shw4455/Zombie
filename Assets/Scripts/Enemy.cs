@@ -27,7 +27,7 @@ public class Enemy : LivingEntity {
         get
         {
             // 추적할 대상이 존재하고, 대상이 사망하지 않았다면 true
-            if (targetEntity != null && !targetEntity.dead) // 추적할 대상은 어디에 넣어져 있나
+            if (targetEntity != null && !targetEntity.dead)
             {
                 return true;
             }
@@ -74,7 +74,7 @@ public class Enemy : LivingEntity {
     // 주기적으로 추적할 대상의 위치를 찾아 경로를 갱신
     private IEnumerator UpdatePath() {
         // 살아있는 동안 무한 루프
-        while (!dead) // 이해가 안 되는건 함수 부분 뿐
+        while (!dead) // 이해가 안 되는건 함수 부분만
         {
             if (hasTarget)
             {
@@ -85,20 +85,19 @@ public class Enemy : LivingEntity {
             else
             {
                 // 추적 대상이 없음. AI 이동을 중지
-               pathFinder.isStopped = true;
+                pathFinder.isStopped = true;
                 // 20유닛의 반지름을 가진 가상의 구를 그렸을 떄 구와 겹치는 모든 콜라이더를 가져옴
                 // 단, whatIsTarger  레이어를 가진 콜라이더만 가져오도록 필터링
-                Collider[] coliders = Physics.OverlapSphere(transform.position, 20f, whatIsTarget);
+                Collider[] colliders = Physics.OverlapSphere(transform.position, 20f, whatIsTarget);
 
                 // 모든 콜라이더를 순환하면서 살아 있는 LivingEntity 찾기
-                for ( int i = 0 ; i < coliders.Length ; i++ )
+                for ( int i = 0 ; i < colliders.Length ; i++ )
                 {
                     // 콜라이더로부터 LivingEntity 가져오기
-                    LivingEntity livingEntity = coliders[i].GetComponent<LivingEntity>();
+                    LivingEntity livingEntity = colliders[i].GetComponent<LivingEntity>();
                     // ? 좀비도 따라가는거 아닌지
-
                     // LivingEntity 컴포넌트가 존재하며 , 해당 LivingEntity가 살아 있다면
-                    if (livingEntity != null && livingEntity.dead)
+                    if (livingEntity != null && !livingEntity.dead)
                     {
                         // 추적 대상을 해당 LivingEntity로 설정
                         targetEntity = livingEntity;
@@ -116,13 +115,12 @@ public class Enemy : LivingEntity {
     // 데미지를 입었을때 실행할 처리
     public override void OnDamage(float damage, Vector3 hitPoint, Vector3 hitNormal) {
         // 아직 사망하지 않은 경우에만 피격 효과 재생
-        if (dead)
+        if (!dead)
         {
             // 공격받은 방향과 지점으로 파티클 효과 재생
             hitEffect.transform.position = hitPoint; // ? hitpoint의 위치는?
             hitEffect.transform.rotation = Quaternion.LookRotation(hitNormal);
             hitEffect.Play();
-
             // 피격 효과음 재생
             enemyAudioPlayer.PlayOneShot(hitSound);
         }
@@ -134,7 +132,7 @@ public class Enemy : LivingEntity {
     public override void Die() {
         // LivingEntity의 Die()를 실행하여 기본 사망 처리 실행
         base.Die();
-
+        
         // 다른 AI를 방해하지 않도록 자신의 모든 콜라이더를 비활성화
         Collider[] enemyColliers = GetComponents<Collider>();
         for (int i = 0; i < enemyColliers.Length; i++)
@@ -160,10 +158,10 @@ public class Enemy : LivingEntity {
         {
             // 상대방의 LivingEntity 타입을 가져오기를 시도
             LivingEntity attackTarget = other.GetComponent<LivingEntity>();
-
             // 상대방의 LivingENtity가 자신의 추적 대상이라면 공격을 실행
             if (attackTarget != null && attackTarget == targetEntity)
             {
+                Debug.LogWarning("공격을 실행");
                 // 최근 공격 시간을 갱신
                 lastAttackTime = Time.time;
 

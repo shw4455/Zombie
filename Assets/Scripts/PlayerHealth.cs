@@ -60,6 +60,7 @@ public class PlayerHealth : LivingEntity
     {
         if (!dead) // 사망하지 않은 경우에만 효과음을 재생
         {
+            Debug.LogWarning(hitClip);
             playerAudioPlayer.PlayOneShot(hitClip); // oneshot으로 해주는 이유는?, 소리가 중간에 안 끊기게 하기 위해
         }
         // LivingEntity의 OnDamage() 실행(데미지 적용)
