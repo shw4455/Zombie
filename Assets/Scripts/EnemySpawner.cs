@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Generic; // 뭘까요?
 using UnityEngine;
 
 // 적 게임 오브젝트를 주기적으로 생성
@@ -19,13 +19,16 @@ public class EnemySpawner : MonoBehaviour {
     public Color strongEnemyColor = Color.red; // 강한 적 AI가 가지게 될 피부색
 
     private List<Enemy> enemies = new List<Enemy>(); // 생성된 적들을 담는 리스트
+    // 현재 존재하는 적 수를 파악하는데 사용
+
+
     private int wave; // 현재 웨이브
 
     private void Update() {
-        // 게임 오버 상태일때는 생성하지 않음
+        // 게임 오버 상태일때는 생성하지 않음 ★★★
         if (GameManager.instance != null && GameManager.instance.isGameover)
         {
-            return;
+            return; // 종료
         }
 
         // 적을 모두 물리친 경우 다음 스폰 실행
@@ -46,9 +49,49 @@ public class EnemySpawner : MonoBehaviour {
 
     // 현재 웨이브에 맞춰 적을 생성
     private void SpawnWave() {
-    }
+        wave++; // 웨이브의 증가
 
+        int spawnCount = Mathf.RoundToInt(wave * 1.5f); // 웨이브 * 1.5 을 반올림한 만큼 적을 생성
+
+        // spawnCount 만큼 적을 생성
+        for (int i = 0; i < spawnCount; i++) {
+            // 적의 세기를 0%에서 100% 사에에서 랜덤 결정
+            float enemyIntensity = Random.Range(0f, 1f);
+
+            // 적 생성 처리를 실행
+            CreateEnemy(enemyIntensity);
+        }
+    }
     // 적을 생성하고 생성한 적에게 추적할 대상을 할당
-    private void CreateEnemy(float intensity) {
+    private void CreateEnemy(float intensity)
+    {
+        // intensity를 기반으로 적의 능력치를 결정
+        float health = Mathf.Lerp(healthMin, healthMax, intensity); // 오랜만에 보는 lerp 함수, 이렇게 보니까 반갑다
+        float damage = Mathf.Lerp(healthMin, healthMax, intensity);
+        float speed = Mathf.Lerp(healthMin, healthMax, intensity);
+
+        // intensity를 기반으로 적의 피부색을 결정
+        Color skinColor = Color.Lerp(Color.white, strongEnemyColor, intensity);
+
+        // 생성할 위치를 랜덤으로 결정
+        Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)]; // spawnPoints의 4가지 값 중 하나를 선택
+
+        // 적의 프리팹으로부터 적을 생성
+        Enemy enemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+
+
+        // 생성한 적의 능력치와 추적 대상을 설정
+        enemy.Setup(health, damage, speed, skinColor); // 위에서 다 설정되었다
+
+        // 생성된 적을 리스트에 추가
+        enemies.Add(enemy); // 필드 내 적 수를 파악하기 위함
+
+        //적의 onDeath 이벤트에 익명 메서드를 등록
+        // 사망한 적을 리스트에서 제거
+        enemy.onDeath += () => enemies.Remove(enemy); // 자신을 리스트에서 제거
+        // 사망한 적을 10초 뒤에 파괴
+        enemy.onDeath += () => Destroy(enemy.gameObject, 10f); // 10초 뒤에 자신의 게임 오브젝트를 파괴
+        // 적 사망 시 점수 상승
+        enemy.onDeath += () => GameManager.instance.AddScore(100); // 게임 점수를 100점 증가
     }
 }
