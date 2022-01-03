@@ -5,7 +5,7 @@ using UnityEngine.UI; // UI 관련 코드
 // 필요한 UI에 즉시 접근하고 변경할 수 있도록 허용하는 UI 매니저
 public class UIManager : MonoBehaviour {
     // 싱글톤 접근용 프로퍼티
-    public static UIManager instance
+    public static UIManager instance // instance 
     {
         get
         {
@@ -13,7 +13,6 @@ public class UIManager : MonoBehaviour {
             {
                 m_instance = FindObjectOfType<UIManager>();
             }
-
             return m_instance;
         }
     }
@@ -40,13 +39,13 @@ public class UIManager : MonoBehaviour {
         waveText.text = "Wave : " + waves + "\nEnemy Left : " + count;
     }
 
-    // 게임 오버 UI 활성화
+    // 게임 오버 UI 활성 // 유무, 접근을 쉽게 하기 위한 메서드
     public void SetActiveGameoverUI(bool active) {
         gameoverUI.SetActive(active);
     }
 
     // 게임 재시작
     public void GameRestart() {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // LoadScene("string") 형태로 받아옴
     }
 }

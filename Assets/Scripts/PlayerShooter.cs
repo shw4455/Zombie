@@ -63,11 +63,13 @@ public class PlayerShooter : MonoBehaviour {
         // 2. 캐릭터의 양손을 총의 양쪽 손잡이에 위치시키기
 
         // 총의 기준점 gunPivot을 3D 모델의 오른쪽 팔꿈치 위치로 이동
-        gunPivot.position = playerAnimator.GetIKHintPosition(AvatarIKHint.RightElbow); // ?
+        gunPivot.position = playerAnimator.GetIKHintPosition(AvatarIKHint.RightElbow); // 총을 손에 올려 놓는다
+
+        // SetIKPositionWeight/SetIKPosition은 세트라고 봐야할듯
 
         // 왼손
         // IK를 사용하여 왼손의 위치와 회전을 총의 왼쪽 손잡이에 맞춤
-        playerAnimator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1.0f);
+        playerAnimator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1.0f); // LeftHand 등등은 어디에서 온걸까?, AvatarIKGoal
         playerAnimator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1.0f);
 
         playerAnimator.SetIKPosition(AvatarIKGoal.LeftHand, leftHandMount.position);
